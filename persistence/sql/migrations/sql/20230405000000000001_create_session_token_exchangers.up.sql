@@ -2,8 +2,8 @@ CREATE TABLE IF NOT EXISTS session_token_exchangers (
     "id" UUID NOT NULL PRIMARY KEY,
     "nid" UUID NOT NULL,
     "flow_id" UUID NOT NULL,
-    "session_id" UUID,
-    "code" VARCHAR(64),
+    "session_id" UUID DEFAULT NULL,
+    "code" VARCHAR(64) NOT NULL,
 
     "created_at" timestamp NOT NULL,
     "updated_at" timestamp NOT NULL
