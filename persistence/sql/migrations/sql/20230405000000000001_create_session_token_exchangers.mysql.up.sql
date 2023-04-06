@@ -12,4 +12,5 @@ CREATE TABLE IF NOT EXISTS session_token_exchangers (
 -- Relevant query:
 --   SELECT * from session_token_exchangers
 --   WHERE flow_id = ? AND nid = ? AND code = ? AND session_id IS NOT NULL AND code <> '';
+-- TODO(hperl): Enable the index.
 -- CREATE INDEX session_token_exchangers_nid_flow_id_code_idx ON session_token_exchangers (nid, flow_id, code);

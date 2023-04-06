@@ -1,3 +1,4 @@
+-- TODO(hperl): Figure out why this is executed twice (or needs "IF NOT EXISTS")?
 CREATE TABLE IF NOT EXISTS session_token_exchangers (
     "id" UUID NOT NULL PRIMARY KEY,
     "nid" UUID NOT NULL,

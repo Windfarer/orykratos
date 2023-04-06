@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	RouteExchangeCodeForSessionToken = "/self-service/exchange-code-for-session-token"
+	RouteExchangeCodeForSessionToken = "/self-service/exchange-code-for-session-token" // #nosec G101
 )
 
 type (
