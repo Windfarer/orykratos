@@ -121,18 +121,6 @@ type Flow struct {
 	RequestedAAL identity.AuthenticatorAssuranceLevel `json:"requested_aal" faker:"len=4" db:"requested_aal"`
 }
 
-type options struct {
-	RedirectToOverride string
-}
-
-type NewFlowOptions func(*options)
-
-func WithRedirectToOverride(redirectTo string) NewFlowOptions {
-	return func(o *options) {
-		o.RedirectToOverride = redirectTo
-	}
-}
-
 func NewFlow(conf *config.Config, exp time.Duration, csrf string, r *http.Request, flowType flow.Type) (*Flow, error) {
 	now := time.Now().UTC()
 	id := x.NewUUID()
