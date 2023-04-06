@@ -17,6 +17,7 @@ import (
 	"github.com/ory/kratos/hydra"
 	"github.com/ory/kratos/identity"
 	"github.com/ory/kratos/selfservice/flow"
+	"github.com/ory/kratos/selfservice/sessiontokenexchange"
 	"github.com/ory/kratos/session"
 	"github.com/ory/kratos/ui/container"
 	"github.com/ory/kratos/ui/node"
@@ -51,6 +52,7 @@ type (
 		x.WriterProvider
 		x.LoggingProvider
 		x.TracingProvider
+		sessiontokenexchange.PersistenceProvider
 
 		HooksProvider
 	}
@@ -192,6 +194,10 @@ func (e *HookExecutor) PostLoginHook(w http.ResponseWriter, r *http.Request, g n
 		if required, _ := e.requiresAAL2(r, classified, a); required {
 			// If AAL is not satisfied, we omit the identity to preserve the user's privacy in case of a phishing attack.
 			response.Session.Identity = nil
+		}
+
+		if err := e.d.SessionTokenExchangePersister().UpdateSessionOnExchanger(r.Context(), a.ID, s.ID); err != nil {
+			return errors.WithStack(err)
 		}
 
 		e.d.Writer().Write(w, r, response)
