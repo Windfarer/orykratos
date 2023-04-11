@@ -28,6 +28,7 @@ import (
 
 	"github.com/ory/kratos/hydra"
 	"github.com/ory/kratos/selfservice/strategy/code"
+	"github.com/ory/kratos/selfservice/strategy/ldap"
 	"github.com/ory/kratos/selfservice/strategy/webauthn"
 
 	"github.com/ory/kratos/selfservice/strategy/lookup"
@@ -319,6 +320,7 @@ func (m *RegistryDefault) selfServiceStrategies() []interface{} {
 			totp.NewStrategy(m),
 			webauthn.NewStrategy(m),
 			lookup.NewStrategy(m),
+			ldap.NewStrategy(m),
 		}
 	}
 
