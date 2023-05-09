@@ -29,7 +29,8 @@ type Duration struct {
 type Configuration struct {
 	// URL is the LDAP URL that begins with the ldap:// protocol prefix
 	// or ldaps:// if the server is communicating over an TLS/SSL connection
-	URL string `json:"ldap_url"`
+	URL                string `json:"ldap_url"`
+	InsecureSkipVerify bool   `json:"insecure_skip_verify"`
 
 	// BindDN and BindPW are the credentials of the service account that used
 	// in the phase of users and groups searching

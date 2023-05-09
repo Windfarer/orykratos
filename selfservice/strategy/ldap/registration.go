@@ -53,21 +53,17 @@ func (s *Strategy) extractIdentity(ctx context.Context, user ldap.Entry, groups 
 	}
 
 	identity := struct {
-		Username string            `json:"username"`
-		Metadata map[string]string `json:"metadata"`
-		Groups   []string          `json:"groups"`
-	}{
-		Username: user.GetAttributeValue(conf.UserSearch.Username),
-		Metadata: make(map[string]string),
-		Groups:   []string{},
-	}
+		Name  string `json:"name"`
+		Email string `json:"email"`
+	}{}
 
 	for _, list := range conf.UserSearch.IdentityAttributes {
-		identity.Metadata[list.Name] = user.GetAttributeValue(list.Attr)
-	}
-
-	for _, group := range groups {
-		identity.Groups = append(identity.Groups, group.GetAttributeValue(conf.GroupSearch.NameAttribute))
+		if list.Name == "email" {
+			identity.Email = user.GetAttributeValue(list.Attr)
+		}
+		if list.Name == "name" {
+			identity.Name = user.GetAttributeValue(list.Attr)
+		}
 	}
 
 	rawid, err := json.Marshal(identity)

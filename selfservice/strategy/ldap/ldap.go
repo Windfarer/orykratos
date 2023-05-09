@@ -2,6 +2,7 @@ package ldap
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"strings"
 
@@ -13,14 +14,18 @@ import (
 var noEntry = ldap.Entry{}
 var noEntries = []*ldap.Entry{}
 
-func (s *Strategy) ldapLogin(ctx context.Context, username string, password string) (user ldap.Entry, groups []*ldap.Entry, err error) {
+func (s *Strategy) dialLDAP(ctx context.Context) (*ldap.Conn, error) {
 	conf, err := s.Config(ctx)
 	if err != nil {
 		s.d.Logger().WithError(err).Debug("LDAP Config")
-		return noEntry, noEntries, err
+		return nil, err
 	}
+	return ldap.DialURL(conf.URL, ldap.DialWithTLSConfig(&tls.Config{InsecureSkipVerify: conf.InsecureSkipVerify}))
+}
 
+func (s *Strategy) ldapLogin(ctx context.Context, username string, password string) (user ldap.Entry, groups []*ldap.Entry, err error) {
 	found, user, err := s.ldapUserEntry(ctx, username)
+
 	if err != nil {
 		return noEntry, noEntries, err
 	}
@@ -29,7 +34,7 @@ func (s *Strategy) ldapLogin(ctx context.Context, username string, password stri
 		return noEntry, noEntries, errors.New("User not found")
 	}
 
-	l, err := ldap.DialURL(conf.URL)
+	l, err := s.dialLDAP(ctx)
 	if err != nil {
 		return noEntry, noEntries, err
 	}
@@ -80,7 +85,7 @@ func (s *Strategy) ldapUserEntry(ctx context.Context, username string) (found bo
 		Attributes: attrs,
 	}
 
-	l, err := ldap.DialURL(conf.URL)
+	l, err := s.dialLDAP(ctx)
 	if err != nil {
 		return false, noEntry, err
 	}
@@ -97,6 +102,8 @@ func (s *Strategy) ldapUserEntry(ctx context.Context, username string) (found bo
 		s.d.Logger().WithError(err)
 		return false, noEntry, err
 	}
+
+	s.d.Logger().WithField("entries", resp.Entries).Debug("query result")
 
 	switch n := len(resp.Entries); n {
 	case 0:
@@ -174,7 +181,7 @@ func (s *Strategy) ldapGroupsUserMatchers(ctx context.Context, user ldap.Entry) 
 		Scope:  ldap.ScopeWholeSubtree,
 	}
 
-	l, err := ldap.DialURL(conf.URL)
+	l, err := s.dialLDAP(ctx)
 	if err != nil {
 		return noEntries, err
 	}
@@ -209,7 +216,7 @@ func (s *Strategy) ldapGroupDNEntry(ctx context.Context, groupDN string) (found 
 		Scope:  ldap.ScopeWholeSubtree,
 	}
 
-	l, err := ldap.DialURL(conf.URL)
+	l, err := s.dialLDAP(ctx)
 	if err != nil {
 		return false, noEntry, err
 	}

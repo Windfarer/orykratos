@@ -1584,6 +1584,11 @@
                         "ldaps://localhost:636"
                       ]
                     },
+                    "insecure_skip_verify": {
+                      "type": "boolean",
+                      "description": "skip tls verify",
+                      "default": false
+                    },
                     "bind_dn": {
                       "type": "string",
                       "description": "The DN of service account that used in the phase of users and groups searching",
