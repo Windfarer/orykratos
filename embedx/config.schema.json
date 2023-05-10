@@ -883,6 +883,9 @@
         "oidc": {
           "$ref": "#/definitions/selfServiceAfterRegistrationMethod"
         },
+        "ldap": {
+          "$ref": "#/definitions/selfServiceAfterRegistrationMethod"
+        },
         "hooks": {
           "$ref": "#/definitions/selfServiceHooks"
         }
