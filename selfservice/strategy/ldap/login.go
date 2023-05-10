@@ -24,13 +24,12 @@ func (s *Strategy) RegisterLoginRoutes(r *x.RouterPublic) {
 
 func (s *Strategy) handleLoginError(w http.ResponseWriter, r *http.Request, f *login.Flow, payload *submitSelfServiceLoginFlowWithLDAPMethodBody, err error) error {
 	if f != nil {
-		f.UI.Nodes.ResetNodes("ldap_password")
 		f.UI.Nodes.SetValueAttribute("ldap_identifier", payload.Identifier)
+		f.UI.Nodes.ResetNodes("ldap_password")
 		if f.Type == flow.TypeBrowser {
 			f.UI.SetCSRF(s.d.GenerateCSRFToken(r))
 		}
 	}
-
 	return err
 }
 
@@ -84,7 +83,7 @@ func (s *Strategy) Login(w http.ResponseWriter, r *http.Request, f *login.Flow, 
 			return nil, err
 		}
 
-		if i, err = s.processRegistration(w, r, aa, user, groups); err != nil {
+		if _, err = s.processRegistration(w, r, aa, user, groups); err != nil {
 			return nil, err
 		}
 	case shouldUpdateIdentity:
@@ -92,11 +91,25 @@ func (s *Strategy) Login(w http.ResponseWriter, r *http.Request, f *login.Flow, 
 		if err != nil {
 			return nil, err
 		}
-		i.Traits = identity.Traits(traits)
 
-		return i, s.d.PrivilegedIdentityPool().UpdateIdentity(r.Context(), i)
+		ic, err := s.d.PrivilegedIdentityPool().GetIdentityConfidential(r.Context(), i.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		ic.Traits = identity.Traits(traits)
+		ic.UpdatedAt = time.Now()
+
+		err = s.d.PrivilegedIdentityPool().UpdateIdentity(r.Context(), ic)
+		if err != nil {
+			return nil, err
+		}
 	}
 
+	i, _, err = s.d.PrivilegedIdentityPool().FindByCredentialsIdentifier(r.Context(), s.ID(), user.DN)
+	if err != nil {
+		return nil, err
+	}
 	return i, nil
 }
 
