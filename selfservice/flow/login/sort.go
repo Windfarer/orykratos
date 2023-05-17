@@ -12,6 +12,7 @@ import (
 func sortNodes(ctx context.Context, n node.Nodes) error {
 	return n.SortBySchema(ctx,
 		node.SortByGroups([]node.UiNodeGroup{
+			node.LDAPGroup,
 			node.OpenIDConnectGroup,
 			node.DefaultGroup,
 			node.WebAuthnGroup,
@@ -24,5 +25,10 @@ func sortNodes(ctx context.Context, n node.Nodes) error {
 			"identifier",
 			"password",
 		}),
+		node.SortUseOrder([]string{
+			"csrf_token",
+			"ldap_identifier",
+			"ldap_password",
+		}),		  
 	)
 }
